@@ -1,43 +1,47 @@
 <?php
-
-  /**
-   *
-   */
   class Database {
     public $mysqli;
 
     function __construct($hostname, $dbuser, $dbpw, $dbname)  {
       $this->mysqli = mysqli_connect($hostname, $dbuser, $dbpw, $dbname);
       if ($this->mysqli->connect_errno) {
-         die('Failed to connect to MySQL: ' . $mysqli->connect_error);
+         die('Failed to connect to MySQL: ' . $mysqli->connect_error . ' (errNo: '.$this->mysqli->connect_errno.')');
       }
     } // end: __construct
 
-    public function dataSelect($colName = array(), $tblName = array(), $where = '') {
-      if (count($colName) < 2) {
-        $colNameStr = implode($colName, ' FROM' . $tblName);
+    public function insertTbl($tblName, $cols = array(), $values) {
+      $colsStr = implode($cols, ', ');
+      $valuesStr = implode($values, "', '");
+      $sql = "INSERT INTO $tblName($colsStr) VALUES('".$valuesStr."')";
+      $res = mysqli_query($this->mysqli, $sql);
+      if ($res) {
+        return 'Insert was successful.';
       } else {
-        $colNameStr = implode($colName, ', ');
-      };
-
-      /*if (count($tblName) < 2) {
-        $tblNameStr = implode($tblName, ' FROM');
-      } else {
-        $tblNameStr = implode($tblName, ', ');
-      };*/
-
-      if ($where = '') {
-        $whereStr = "WHERE $where";
+        return 'Something went wrong: ' . $this->mysqli->error . ' (errNo: '.$this->mysqli->errno.')';
       }
+    } // end: insertTbl
 
-      echo $sql = "SELECT $colNameStr $tblNameStr;";
-      $result = $this->mysqli->query($sql);
-      if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-          return $row;
-        }
+    public function selectRow($tblName, $cols, $whereClause = '') {
+      $sql = "SELECT $cols FROM $tblName $whereClause;";
+      return mysqli_query($this->mysqli, $sql);
+    } // end: selectRow
+
+    public function updateRow($tblName, $cols, $whereClause = '') {
+    echo  $sql = "UPDATE $tblName SET $cols $whereClause;";
+      $res = mysqli_query($this->mysqli, $sql);
+      if ($res) {
+        return 'Update was successful.';
       } else {
-        return 'no results';
+        return 'Something went wrong: ' . $this->mysqli->error . ' (errNo: '.$this->mysqli->errno.')';
       }
-    } // end: dataSelect
-  }
+    } // end: updateRow
+    public function deleteRow($tblName, $whereClause) {
+      $sql = "DELETE FROM $tblName $whereClause;";
+      $res = mysqli_query($this->mysqli, $sql);
+      if ($res) {
+        return 'Delete was successful.';
+      } else {
+        return 'Something went wrong: ' . $this->mysqli->error . ' (errNo: '.$this->mysqli->errno.')';
+      }
+    } // end: deleteRow
+  } // end: class Database
