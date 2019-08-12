@@ -92,6 +92,6 @@ ob_start();
         </label>
 
         <input type="submit" name="save" value="Save" class="btn btn-success">
-      </form>     
+      </form>
   </body>
 </html>
